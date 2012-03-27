@@ -1,6 +1,8 @@
 package ro.isdc.wro4j.gradle.tasks
 
 import org.gradle.api.Project;
+import org.gradle.api.internal.file.collections.FileCollectionAdapter;
+import org.gradle.api.internal.file.collections.SimpleFileCollection;
 import org.gradle.api.plugins.WarPlugin;
 import org.gradle.testfixtures.ProjectBuilder;
 
@@ -25,7 +27,7 @@ class ProcessResourcesTaskSpec extends Specification {
             destDestDir.mkdirs()
 
             ProcessResourcesTask task = project.task('processResources', type: ProcessResourcesTask)
-            task.srcDir = jsSrcDir
+            task.srcFiles = new SimpleFileCollection(jsSrcDir)
             task.destDir = destDestDir
             task.model = WroModelFromClosure.read {
                 groups {
