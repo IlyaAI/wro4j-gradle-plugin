@@ -1,0 +1,13 @@
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+
+repositories { mavenCentral() }
+
+dependencies {
+    groovy 'org.codehaus.groovy:groovy:1.8.6'
+    compile gradleApi()
+    compile 'ro.isdc.wro4j:wro4j-extensions:1.4.4'
+
+    testCompile "org.spockframework:spock-core:0.6-groovy-1.8", {  exclude group: 'org.codehaus.groovy'  }
+}
+
