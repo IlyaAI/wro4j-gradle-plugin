@@ -1,13 +1,24 @@
-apply plugin: 'groovy'
-apply plugin: 'eclipse'
 
-repositories { mavenCentral() }
+group = 'ro.isdc.wro4j.gradle'
+version = '1.7.9'
+
+apply plugin: 'groovy'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+repositories {
+    jcenter()
+}
 
 dependencies {
-    groovy 'org.codehaus.groovy:groovy:1.8.6'
     compile gradleApi()
-    compile 'ro.isdc.wro4j:wro4j-extensions:1.4.4'
+    compile 'ro.isdc.wro4j:wro4j-extensions:1.7.9'
+    compile "org.mockito:mockito-all:1.10.19"
 
-    testCompile "org.spockframework:spock-core:0.6-groovy-1.8", {  exclude group: 'org.codehaus.groovy'  }
+    testCompile 'com.netflix.nebula:nebula-test:3.1.0'
+    /*testCompile( 'org.spockframework:spock-core:1.0-groovy-2.4' ) {
+        exclude module: 'groovy-all'
+    }*/
 }
 
