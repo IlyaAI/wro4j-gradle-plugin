@@ -58,7 +58,7 @@ public class WebCompileTask extends DefaultTask {
         preProcessors = pre
     }
 
-    void preProcess(String pre) {
+    void preProcessor(String pre) {
         preProcessors += pre
     }
 
@@ -71,7 +71,7 @@ public class WebCompileTask extends DefaultTask {
         postProcessors = post
     }
 
-    void postProcess(String post) {
+    void postProcessor(String post) {
         postProcessors += post
     }
 
@@ -138,7 +138,8 @@ public class WebCompileTask extends DefaultTask {
         config.setIgnoreEmptyGroup(true)
 
         def ctx = Context.webContext(request, response, filterConfig)
-        // TODO: ctx.aggregatedFolderPath = getAggregatedPathResolver().resolve()
+        ctx.aggregatedFolderPath = outputDir.path
+
         Context.set(ctx, config)
         try {
             getLogger().debug("  initiating WroManager")
