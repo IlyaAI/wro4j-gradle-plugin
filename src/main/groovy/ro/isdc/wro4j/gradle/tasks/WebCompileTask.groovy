@@ -8,6 +8,7 @@ import ro.isdc.wro.config.jmx.WroConfiguration
 import ro.isdc.wro.http.support.DelegatingServletOutputStream
 import ro.isdc.wro.manager.WroManager
 import ro.isdc.wro.model.resource.ResourceType
+import ro.isdc.wro.model.resource.locator.factory.ConfigurableLocatorFactory
 import ro.isdc.wro.model.resource.processor.factory.ConfigurableProcessorsFactory
 import ro.isdc.wro.util.io.UnclosableBufferedInputStream
 import ro.isdc.wro4j.gradle.EmbeddedWroManagerFactory
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse
 public class WebCompileTask extends DefaultTask {
     private File wroFile
     private Set<String> targetGroups = []
+    private List<String> uriLocators = ["servletContext", "classpath"]
     private List<String> preProcessors = []
     private List<String> postProcessors = []
     private File sourcesDir;
@@ -47,6 +49,19 @@ public class WebCompileTask extends DefaultTask {
 
     void targetGroup(String group) {
         targetGroups += group
+    }
+
+    @Input
+    List<String> getUriLocators() {
+        return uriLocators
+    }
+
+    void setUriLocators(List<String> locators) {
+        uriLocators = locators
+    }
+
+    void uriLocator(String locator) {
+        uriLocators += locator
     }
 
     @Input
@@ -113,6 +128,7 @@ public class WebCompileTask extends DefaultTask {
     private Properties createConfigProperties() {
         def props = new Properties()
 
+        props.setProperty(ConfigurableLocatorFactory.PARAM_URI_LOCATORS, uriLocators.join(","));
         props.setProperty(ConfigurableProcessorsFactory.PARAM_PRE_PROCESSORS, preProcessors.join(","))
         props.setProperty(ConfigurableProcessorsFactory.PARAM_POST_PROCESSORS, postProcessors.join(","))
 
@@ -122,9 +138,14 @@ public class WebCompileTask extends DefaultTask {
     private void processGroup(String group) {
         getLogger().info("Processing group '{}'...", group)
 
+        def requestUrl = new StringBuffer()
+        requestUrl.append(sourcesDir.toURI().toURL())
+
         def request = Mockito.mock(HttpServletRequest)
-        Mockito.when(request.getContextPath()).thenReturn(sourcesDir.path)
+        Mockito.when(request.getContextPath()).thenReturn(".")
+        Mockito.when(request.getServletPath()).thenReturn("")
         Mockito.when(request.getRequestURI()).thenReturn(group)
+        Mockito.when(request.getRequestURL()).thenReturn(requestUrl)
 
         def output = new ByteArrayOutputStream()
         def servletOutput = new DelegatingServletOutputStream(output)
@@ -138,7 +159,7 @@ public class WebCompileTask extends DefaultTask {
         config.setIgnoreEmptyGroup(true)
 
         def ctx = Context.webContext(request, response, filterConfig)
-        ctx.aggregatedFolderPath = outputDir.path
+        ctx.aggregatedFolderPath = ""
 
         Context.set(ctx, config)
         try {

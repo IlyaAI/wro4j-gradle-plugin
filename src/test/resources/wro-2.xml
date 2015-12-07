@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <groups xmlns="http://www.isdc.ro/wro">
-    <group name="url-rewrite">
+    <group name="url-rewrite-classpath">
         <css>classpath:a/test-3.css</css>
         <css>classpath:b/test-4.css</css>
+    </group>
+
+    <group name="url-rewrite-context">
+        <css>/a/test-3.css</css>
+        <css>/b/test-4.css</css>
     </group>
 </groups>

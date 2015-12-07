@@ -15,6 +15,40 @@ class WebCompileTaskBasicTest extends ProjectSpec {
         task.outputDir = project.buildDir
     }
 
+    def "should support classpath uri"() {
+        given:
+        task.targetGroup("test-classpath")
+
+        when:
+        project.evaluate()
+        task.execute()
+
+        then:
+        def jsFile = new File(project.buildDir, "test-classpath.js")
+        jsFile.exists()
+        jsFile.length() > 0
+        def cssFile = new File(project.buildDir, "test-classpath.css")
+        cssFile.exists()
+        cssFile.length() > 0
+    }
+
+    def "should support servletContext uri"() {
+        given:
+        task.targetGroup("test-context")
+
+        when:
+        project.evaluate()
+        task.execute()
+
+        then:
+        def jsFile = new File(project.buildDir, "test-context.js")
+        jsFile.exists()
+        jsFile.length() > 0
+        def cssFile = new File(project.buildDir, "test-context.css")
+        cssFile.exists()
+        cssFile.length() > 0
+    }
+
     def "should bundle js"() {
         given:
         task.targetGroup("js-test")
