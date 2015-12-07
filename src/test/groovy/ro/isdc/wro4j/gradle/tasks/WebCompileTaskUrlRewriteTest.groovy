@@ -9,7 +9,7 @@ class WebCompileTaskUrlRewriteTest extends ProjectSpec {
     def setup() {
         project.apply plugin: 'wro4j'
 
-        task = project.tasks.create('compileCss', WebCompileTask)
+        task = project.tasks.create('compileCssTest', WebCompileTask)
         task.wroFile = new File(getClass().getResource("/wro-2.xml").toURI())
         task.preProcessor("cssUrlRewriting")
         task.sourcesDir = task.wroFile.parentFile

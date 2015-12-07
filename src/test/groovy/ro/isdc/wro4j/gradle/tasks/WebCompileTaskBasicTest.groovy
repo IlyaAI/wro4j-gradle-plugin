@@ -9,7 +9,7 @@ class WebCompileTaskBasicTest extends ProjectSpec {
     def setup() {
         project.apply plugin: 'wro4j'
 
-        task = project.tasks.create('compileWeb', WebCompileTask)
+        task = project.tasks.create('compileWebTest', WebCompileTask)
         task.wroFile = new File(getClass().getResource("/wro-1.xml").toURI())
         task.sourcesDir = task.wroFile.parentFile
         task.outputDir = project.buildDir

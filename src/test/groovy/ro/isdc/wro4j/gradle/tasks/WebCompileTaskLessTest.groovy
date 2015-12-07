@@ -9,7 +9,7 @@ class WebCompileTaskLessTest extends ProjectSpec {
     def setup() {
         project.apply plugin: 'wro4j'
 
-        task = project.tasks.create('compileLess', WebCompileTask)
+        task = project.tasks.create('compileLessTest', WebCompileTask)
         task.wroFile = new File(getClass().getResource("/wro-3.xml").toURI())
         task.preProcessor("less4j")
         task.sourcesDir = task.wroFile.parentFile
