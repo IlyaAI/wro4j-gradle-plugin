@@ -47,18 +47,18 @@ class Wro4JPlugin implements Plugin<Project> {
             processWebResources.dependsOn compileWeb
         }
 
-        def copyStatic = project.tasks.create(nameFor("copy", webResources.staticFolder), Copy)
-        copyStatic.with {
-            from srcRoot
-            include "${webResources.staticFolder}/**"
-            into dstRoot
-        }
-        processWebResources.dependsOn copyStatic
-
         def copyAssets = project.tasks.create("copyAssets", Copy)
         copyAssets.with {
+            from (new File(srcRoot, webResources.staticFolder)) {
+                include "**"
+            }
+            /*from (srcRoot) {
+                include "css/default/images*//*"
+                //with webResources.assetsSpec
+            }*/
+            with webResources.assetsSpec.from(srcRoot)
             into dstRoot
-            with webResources.assetsSpec
+
         }
         processWebResources.dependsOn copyAssets
 
