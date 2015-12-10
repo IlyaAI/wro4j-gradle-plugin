@@ -8,16 +8,16 @@ class WebResourceSet {
     private static final String STATIC = "static"
     static final String NAME = "webResources"
 
-
+    private final Project project
     private final Map<String, WebBundle> bundles = new HashMap<>()
-    private final CopySpec assets;
+    private CopySpec assets;
     private File srcDir
     private String staticFolder
 
     WebResourceSet(Project project) {
-        assets = project.copySpec()
-        srcDir = project.file("src/main/webResources")
-        staticFolder = STATIC
+        this.project = project
+        this.srcDir = project.file("src/main/webResources")
+        this.staticFolder = STATIC
     }
 
     File getSrcDir() {
@@ -53,6 +53,9 @@ class WebResourceSet {
     }
 
     void assets(Closure configure) {
+        if (assets == null) {
+            assets = project.copySpec()
+        }
         configure.delegate = assets
         configure.resolveStrategy = Closure.DELEGATE_FIRST
         configure()
@@ -66,7 +69,7 @@ class WebResourceSet {
         return wro
     }
 
-    CopySpec getAssetsSpec() {
+    CopySpec getAssets() {
         return assets
     }
 
