@@ -1,7 +1,9 @@
 package ro.isdc.wro4j.gradle.tasks
 import org.apache.commons.io.IOUtils
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
+import org.mockito.Matchers
 import org.mockito.Mockito
 import ro.isdc.wro.config.Context
 import ro.isdc.wro.config.jmx.WroConfiguration
@@ -14,6 +16,7 @@ import ro.isdc.wro.util.io.UnclosableBufferedInputStream
 import ro.isdc.wro4j.gradle.EmbeddedWroManagerFactory
 
 import javax.servlet.FilterConfig
+import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -43,12 +46,12 @@ public class WebCompileTask extends DefaultTask {
         return targetGroups
     }
 
-    void setTargetGroup(Set<String> groups) {
+    void setTargetGroups(Set<String> groups) {
         targetGroups = groups
     }
 
-    void targetGroup(String group) {
-        targetGroups += group
+    void targetGroup(String...groups) {
+        targetGroups.addAll(groups)
     }
 
     @Input
@@ -60,8 +63,8 @@ public class WebCompileTask extends DefaultTask {
         uriLocators = locators
     }
 
-    void uriLocator(String locator) {
-        uriLocators += locator
+    void uriLocator(String...locators) {
+        uriLocators.addAll(locators)
     }
 
     @Input
@@ -73,8 +76,8 @@ public class WebCompileTask extends DefaultTask {
         preProcessors = pre
     }
 
-    void preProcessor(String pre) {
-        preProcessors += pre
+    void preProcessor(String...pre) {
+        preProcessors.addAll(pre)
     }
 
     @Input
@@ -86,8 +89,8 @@ public class WebCompileTask extends DefaultTask {
         postProcessors = post
     }
 
-    void postProcessor(String post) {
-        postProcessors += post
+    void postProcessor(String...post) {
+        postProcessors.addAll(post)
     }
 
     @InputDirectory
@@ -141,6 +144,13 @@ public class WebCompileTask extends DefaultTask {
         def requestUrl = new StringBuffer()
         requestUrl.append(sourcesDir.toURI().toURL())
 
+        def servletContext = Mockito.mock(ServletContext)
+        Mockito.when(servletContext.getRealPath(Matchers.anyString()))
+            .thenAnswer({invocation ->
+                def vpath = (String)invocation.arguments[0]
+                new File(sourcesDir, StringUtils.removeStart(vpath, "/")).path
+            })
+
         def request = Mockito.mock(HttpServletRequest)
         Mockito.when(request.getContextPath()).thenReturn(".")
         Mockito.when(request.getServletPath()).thenReturn("")
@@ -153,6 +163,7 @@ public class WebCompileTask extends DefaultTask {
         Mockito.when(response.getOutputStream()).thenReturn(servletOutput)
 
         def filterConfig = Mockito.mock(FilterConfig)
+        Mockito.when(filterConfig.getServletContext()).thenReturn(servletContext)
 
         def config = new WroConfiguration()
         // plugin should ignore empty groups, since it will try to process all types of resources
@@ -183,7 +194,7 @@ public class WebCompileTask extends DefaultTask {
                     IOUtils.copy(input, it)
                 };
 
-                getLogger().info("There are {}KB generated into '{}'.", output.size() / 1024, destinationFile)
+                getLogger().info("There are {}B generated into '{}'.", output.size(), destinationFile)
             }
         } finally {
             Context.unset()

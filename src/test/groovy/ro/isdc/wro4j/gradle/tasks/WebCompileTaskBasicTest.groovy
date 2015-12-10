@@ -7,6 +7,7 @@ class WebCompileTaskBasicTest extends ProjectSpec {
     WebCompileTask task
 
     def setup() {
+        project.apply plugin: 'java'
         project.apply plugin: 'wro4j'
 
         task = project.tasks.create('compileWebTest', WebCompileTask)
