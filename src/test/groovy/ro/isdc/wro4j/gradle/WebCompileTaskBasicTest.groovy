@@ -1,58 +1,37 @@
-package ro.isdc.wro4j.gradle.tasks
+package ro.isdc.wro4j.gradle
 
 import nebula.test.ProjectSpec
+import ro.isdc.wro.model.WroModel
+import ro.isdc.wro.model.group.Group
+import ro.isdc.wro.model.resource.Resource
+import ro.isdc.wro.model.resource.ResourceType
 
 class WebCompileTaskBasicTest extends ProjectSpec {
 
     WebCompileTask task
 
     def setup() {
-        project.apply plugin: 'java'
-        project.apply plugin: 'wro4j'
+        def wroModel = new WroModel()
+
+        def jsGroup = new Group("js-test")
+        jsGroup.addResource(Resource.create("/test-1.js", ResourceType.JS))
+        jsGroup.addResource(Resource.create("/test-2.js", ResourceType.JS))
+        wroModel.addGroup(jsGroup)
+
+        def cssGroup = new Group("css-test")
+        cssGroup.addResource(Resource.create("/test-1.css", ResourceType.CSS))
+        cssGroup.addResource(Resource.create("/test-2.css", ResourceType.CSS))
+        wroModel.addGroup(cssGroup)
 
         task = project.tasks.create('compileWebTest', WebCompileTask)
-        task.wroFile = new File(getClass().getResource("/wro-1.xml").toURI())
-        task.sourcesDir = task.wroFile.parentFile
+        task.wroModel = wroModel
+        task.sourcesDir = new File(getClass().getResource("/root").toURI()).parentFile
         task.outputDir = project.buildDir
-    }
-
-    def "should support classpath uri"() {
-        given:
-        task.targetGroup("test-classpath")
-
-        when:
-        project.evaluate()
-        task.execute()
-
-        then:
-        def jsFile = new File(project.buildDir, "test-classpath.js")
-        jsFile.exists()
-        jsFile.length() > 0
-        def cssFile = new File(project.buildDir, "test-classpath.css")
-        cssFile.exists()
-        cssFile.length() > 0
-    }
-
-    def "should support servletContext uri"() {
-        given:
-        task.targetGroup("test-context")
-
-        when:
-        project.evaluate()
-        task.execute()
-
-        then:
-        def jsFile = new File(project.buildDir, "test-context.js")
-        jsFile.exists()
-        jsFile.length() > 0
-        def cssFile = new File(project.buildDir, "test-context.css")
-        cssFile.exists()
-        cssFile.length() > 0
     }
 
     def "should bundle js"() {
         given:
-        task.targetGroup("js-test")
+        task.targetGroups = ["js-test"]
 
         when:
         project.evaluate()
@@ -68,8 +47,8 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should apply js pre-processors"() {
         given:
-        task.targetGroup("js-test")
-        task.preProcessor("jsMin")
+        task.targetGroups = ["js-test"]
+        task.preProcessors = ["jsMin"]
 
         when:
         project.evaluate()
@@ -85,8 +64,8 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should apply js post-processors"() {
         given:
-        task.targetGroup("js-test")
-        task.postProcessor("jsMin")
+        task.targetGroups = ["js-test"]
+        task.postProcessors = ["jsMin"]
 
         when:
         project.evaluate()
@@ -102,7 +81,7 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should bundle css"() {
         given:
-        task.targetGroup("css-test")
+        task.targetGroups = ["css-test"]
 
         when:
         project.evaluate()
@@ -118,8 +97,8 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should apply css pre-processors"() {
         given:
-        task.targetGroup("css-test")
-        task.preProcessor("cssMin")
+        task.targetGroups = ["css-test"]
+        task.preProcessors = ["cssMin"]
 
         when:
         project.evaluate()
@@ -135,8 +114,8 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should apply css post-processors"() {
         given:
-        task.targetGroup("css-test")
-        task.postProcessor("cssMin")
+        task.targetGroups = ["css-test"]
+        task.postProcessors = ["cssMin"]
 
         when:
         project.evaluate()

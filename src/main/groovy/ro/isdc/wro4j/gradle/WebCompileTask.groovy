@@ -1,19 +1,23 @@
-package ro.isdc.wro4j.gradle.tasks
+package ro.isdc.wro4j.gradle
+
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import org.mockito.Matchers
 import org.mockito.Mockito
 import ro.isdc.wro.config.Context
 import ro.isdc.wro.config.jmx.WroConfiguration
 import ro.isdc.wro.http.support.DelegatingServletOutputStream
 import ro.isdc.wro.manager.WroManager
+import ro.isdc.wro.model.WroModel
 import ro.isdc.wro.model.resource.ResourceType
 import ro.isdc.wro.model.resource.locator.factory.ConfigurableLocatorFactory
 import ro.isdc.wro.model.resource.processor.factory.ConfigurableProcessorsFactory
 import ro.isdc.wro.util.io.UnclosableBufferedInputStream
-import ro.isdc.wro4j.gradle.EmbeddedWroManagerFactory
 
 import javax.servlet.FilterConfig
 import javax.servlet.ServletContext
@@ -21,24 +25,29 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 public class WebCompileTask extends DefaultTask {
-    private File wroFile
+    private WroModel wroModel
     private Set<String> targetGroups = []
-    private List<String> uriLocators = ["servletContext", "classpath"]
+    private List<String> uriLocators = ["servletContext"]
     private List<String> preProcessors = []
     private List<String> postProcessors = []
     private File sourcesDir;
     private File outputDir;
 
     WebCompileTask() {
+        wroModel = new WroModel()
     }
 
-    @InputFile
-    File getWroFile() {
-        return wroFile != null ? wroFile : (wroFile = new File(project.projectDir, "wro.xml"))
+    @Input
+    String getWroModelHash() {
+        return wroModel.toString()
     }
 
-    void setWroFile(File file) {
-        wroFile = file
+    WroModel getWroModel() {
+        return wroModel
+    }
+
+    void setWroModel(WroModel wroModel) {
+        this.wroModel = wroModel
     }
 
     @Input
@@ -50,23 +59,6 @@ public class WebCompileTask extends DefaultTask {
         targetGroups = groups
     }
 
-    void targetGroup(String...groups) {
-        targetGroups.addAll(groups)
-    }
-
-    @Input
-    List<String> getUriLocators() {
-        return uriLocators
-    }
-
-    void setUriLocators(List<String> locators) {
-        uriLocators = locators
-    }
-
-    void uriLocator(String...locators) {
-        uriLocators.addAll(locators)
-    }
-
     @Input
     List<String> getPreProcessors() {
         return preProcessors
@@ -76,10 +68,6 @@ public class WebCompileTask extends DefaultTask {
         preProcessors = pre
     }
 
-    void preProcessor(String...pre) {
-        preProcessors.addAll(pre)
-    }
-
     @Input
     List<String> getPostProcessors() {
         return postProcessors
@@ -87,10 +75,6 @@ public class WebCompileTask extends DefaultTask {
 
     void setPostProcessors(List<String> post) {
         postProcessors = post
-    }
-
-    void postProcessor(String...post) {
-        postProcessors.addAll(post)
     }
 
     @InputDirectory
@@ -123,7 +107,7 @@ public class WebCompileTask extends DefaultTask {
 
     private WroManager createWroManager() {
         def configProps = createConfigProperties()
-        def factory = new EmbeddedWroManagerFactory(wroFile, configProps)
+        def factory = new EmbeddedWroManagerFactory(wroModel, configProps)
 
         return factory.create()
     }

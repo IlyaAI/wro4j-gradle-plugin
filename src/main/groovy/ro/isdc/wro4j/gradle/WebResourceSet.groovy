@@ -1,16 +1,23 @@
 package ro.isdc.wro4j.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.file.CopySpec
+import ro.isdc.wro.model.WroModel
 
 class WebResourceSet {
+    private static final String STATIC = "static"
     static final String NAME = "webResources"
 
+
+    private final Map<String, WebBundle> bundles = new HashMap<>()
+    private final CopySpec assets;
     private File srcDir
-    private Set<WroSpec> jsSpecs = []
-    private Set<WroSpec> themeSpecs = []
+    private String staticFolder
 
     WebResourceSet(Project project) {
+        assets = project.copySpec()
         srcDir = project.file("src/main/webResources")
+        staticFolder = STATIC
     }
 
     File getSrcDir() {
@@ -21,59 +28,49 @@ class WebResourceSet {
         this.srcDir = srcDir
     }
 
-    Set<WroSpec> getJsSpecs() {
-        return jsSpecs
+    String getStaticFolder() {
+        return staticFolder
     }
 
-    void js(String name) {
-        js([name])
+    void setStaticFolder(String staticFolder) {
+        this.staticFolder = staticFolder
     }
 
-    void js(Iterable<String> names) {
-        js(names, {})
+    Collection<WebBundle> getBundles() {
+        return Collections.unmodifiableCollection(bundles.values())
     }
 
-    void js(String name, Closure config) {
-        js([name], config)
-    }
-
-    void js(Iterable<String> names, Closure config) {
-        names.each {name ->
-            def spec = new WroSpec(name);
-            config.delegate = spec
-            config.resolveStrategy = Closure.DELEGATE_ONLY
-            config()
-
-            jsSpecs.add(spec)
+    void bundle(String name, Closure configure) {
+        def bundle = bundles.get(name)
+        if (bundle == null) {
+            bundle = new WebBundle(name)
+            bundles.put(name, bundle)
         }
+
+        configure.delegate = bundle
+        configure.resolveStrategy = Closure.DELEGATE_FIRST
+        configure()
     }
 
-    Set<WroSpec> getThemeSpecs() {
-        return themeSpecs
+    void assets(Closure configure) {
+        configure.delegate = assets
+        configure.resolveStrategy = Closure.DELEGATE_FIRST
+        configure()
     }
 
-    void theme(String name) {
-        theme([name])
-    }
-
-    void theme(Iterable<String> names) {
-        theme(names, {})
-    }
-
-    void theme(String name, Closure config) {
-        theme([name], config)
-    }
-
-    void theme(Iterable<String> names, Closure config) {
-        names.each {name ->
-            def spec = new WroSpec(name);
-            spec.preProcessor("cssUrlRewriting")
-
-            config.delegate = spec
-            config.resolveStrategy = Closure.DELEGATE_ONLY
-            config()
-
-            themeSpecs.add(spec)
+    WroModel createWroModel() {
+        def wro = new WroModel()
+        bundles.values().each { bundle ->
+            wro.addGroup(bundle.group)
         }
+        return wro
+    }
+
+    CopySpec getAssetsSpec() {
+        return assets
+    }
+
+    static WebResourceSet get(Project project) {
+        return project.extensions.getByType(WebResourceSet)
     }
 }

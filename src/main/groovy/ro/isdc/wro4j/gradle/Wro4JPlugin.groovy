@@ -7,7 +7,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSet
-import ro.isdc.wro4j.gradle.tasks.WebCompileTask;
 
 class Wro4JPlugin implements Plugin<Project> {
 
@@ -19,75 +18,57 @@ class Wro4JPlugin implements Plugin<Project> {
         }
 
         def webResources = project.extensions.create(WebResourceSet.NAME, WebResourceSet, project)
-        project.extensions.extraProperties.set("WebCompile", WebCompileTask)
-        project.configurations.create("webjar")
+        project.configurations.create("webjars")
 
         project.afterEvaluate {
-            createTasks(project, javaConvention, webResources)
+            createTasks(webResources, project, javaConvention)
         }
     }
 
-    private static void createTasks(Project project, JavaPluginConvention javaConvention, WebResourceSet webResources) {
-        def sourceSetMain = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    private static void createTasks(WebResourceSet webResources, Project project, JavaPluginConvention javaConvention) {
+        def srcMain = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 
         def srcRoot = webResources.srcDir
-        def srcWro = new File(srcRoot, "wro.xml")
-        def dstRoot = new File(sourceSetMain.output.resourcesDir, "static")
+        def model = webResources.createWroModel()
+        def dstRoot = new File(srcMain.output.resourcesDir, webResources.staticFolder)
 
         def processWebResources = project.tasks.create("processWebResources")
 
-        webResources.jsSpecs.each {spec ->
-            def compileJs = project.tasks.create(getTaskName("compileJs", spec.name), WebCompileTask)
-            compileJs.with {
-                wroFile = srcWro
-                targetGroups = spec.targetGroups
-                preProcessors = spec.preProcessors
-                postProcessors = spec.postProcessors
+        webResources.bundles.each { bundle ->
+            def compileWeb = project.tasks.create(nameFor("compileWeb", bundle.name), WebCompileTask)
+            compileWeb.with {
+                wroModel = model
+                targetGroups = [bundle.name]
+                preProcessors = bundle.preProcessors
+                postProcessors = bundle.postProcessors
                 sourcesDir = srcRoot
                 outputDir = dstRoot
             }
-            processWebResources.dependsOn compileJs
+            processWebResources.dependsOn compileWeb
         }
 
-        webResources.themeSpecs.each {spec ->
-            def compileTheme = project.tasks.create(getTaskName("compileTheme", spec.name), WebCompileTask)
-            compileTheme.with {
-                wroFile = srcWro
-                targetGroups = spec.targetGroups
-                preProcessors = spec.preProcessors
-                postProcessors = spec.postProcessors
-                sourcesDir = srcRoot
-                outputDir = dstRoot
-            }
-            processWebResources.dependsOn compileTheme
-        }
-
-        def copyThemeAssets = project.tasks.create("copyThemeAssets", Copy)
-        copyThemeAssets.with {
-            from project.fileTree(new File(srcRoot, "themes")) {
-                include "**"
-            }
-            into new File(dstRoot, "themes")
-            exclude "**/*.css", "**/*.less", "**/*.saas", "**/*.js"
-        }
-        processWebResources.dependsOn copyThemeAssets
-
-        def copyStaticAssets = project.tasks.create("copyStaticAssets", Copy)
-        copyStaticAssets.with {
-            from project.fileTree(new File(srcRoot, "static")) {
-                include "**"
-            }
+        def copyStatic = project.tasks.create(nameFor("copy", webResources.staticFolder), Copy)
+        copyStatic.with {
+            from srcRoot
+            include "${webResources.staticFolder}/**"
             into dstRoot
         }
-        processWebResources.dependsOn copyStaticAssets
+        processWebResources.dependsOn copyStatic
+
+        def copyAssets = project.tasks.create("copyAssets", Copy)
+        copyAssets.with {
+            into dstRoot
+            with webResources.assetsSpec
+        }
+        processWebResources.dependsOn copyAssets
 
         project.tasks.getByName("classes")
                 .dependsOn processWebResources
     }
 
-    private static String getTaskName(String prefix, String specName) {
+    private static String nameFor(String prefix, String specName) {
         def name = new StringBuilder(prefix)
-        specName.split("\\.|-|_").each {word ->
+        specName.split("\\.|-|_").each { word ->
             name.append(StringUtils.capitalize(word))
         }
         return name.toString()
