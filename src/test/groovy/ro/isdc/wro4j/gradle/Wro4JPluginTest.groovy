@@ -129,4 +129,31 @@ class Wro4JPluginTest extends ProjectSpec {
         def jsDir = new File(project.buildDir, "resources/main/static/js")
         !jsDir.exists()
     }
+
+    def "should override css import"() {
+        given:
+        def webResources = WebResourceSet.get(project)
+        webResources.with {
+            srcDir = new File(getClass().getResource("/root").toURI()).parentFile
+
+            bundle("theme-default") {
+                css "webjars/mywebjar/1.0.0/my.webjar.css"
+
+                cssOverrideImport "colors.css", "../../../css/default/my.colors.css"
+                preProcessor "cssUrlRewriting"
+            }
+        }
+        project.dependencies.add("webjars", project.files("${webResources.srcDir}/my-webjar.jar"))
+
+        when:
+        project.evaluate()
+        processWebResources()
+
+        then:
+        def cssDefault = new File(project.buildDir, "resources/main/static/theme-default.css")
+        cssDefault.exists()
+        def defaultText = cssDefault.getText()
+        defaultText.contains(".title { color: white; }")
+        defaultText.contains(".text { color: lightgray; }")
+    }
 }

@@ -28,6 +28,11 @@ class WebResourceSet {
         this.srcDir = srcDir
     }
 
+    /**
+     * Folder name for webapp static content. Default 'static'.
+     *
+     * @return folder for static content
+     */
     String getStaticFolder() {
         return staticFolder
     }
@@ -40,6 +45,13 @@ class WebResourceSet {
         return Collections.unmodifiableCollection(bundles.values())
     }
 
+    /**
+     * Defines web resource bundle. Resources from bundle will be pre- and post-processed by specified set of processors.
+     *
+     * @param name  bundle name; generated output files will be <name>.js and/or <name>.css
+     * @param configure    closure to configure bundle
+     * @see WebBundle
+     */
     void bundle(String name, Closure configure) {
         def bundle = bundles.get(name)
         if (bundle == null) {
@@ -52,6 +64,12 @@ class WebResourceSet {
         configure()
     }
 
+    /**
+     * Defines web assets. Assets will be copied to static folder as is.
+     *
+     * @param configure    closure to configure assets
+     * @see CopySpec
+     */
     void assets(Closure configure) {
         if (assets == null) {
             assets = project.copySpec()

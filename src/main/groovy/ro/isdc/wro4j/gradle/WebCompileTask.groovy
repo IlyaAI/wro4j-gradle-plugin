@@ -30,6 +30,7 @@ public class WebCompileTask extends DefaultTask {
     private List<String> uriLocators = ["servletContext"]
     private List<String> preProcessors = []
     private List<String> postProcessors = []
+    private Map<String, String> configProperties = new HashMap<>()
     private File sourcesDir;
     private File outputDir;
 
@@ -95,6 +96,14 @@ public class WebCompileTask extends DefaultTask {
         outputDir = dst
     }
 
+    Map<String, String> getConfigProperties() {
+        return configProperties
+    }
+
+    void setConfigProperties(Map<String, String> configProperties) {
+        this.configProperties = configProperties
+    }
+
     @TaskAction
     private void compile() {
         for (def group: targetGroups) {
@@ -118,6 +127,10 @@ public class WebCompileTask extends DefaultTask {
         props.setProperty(ConfigurableLocatorFactory.PARAM_URI_LOCATORS, uriLocators.join(","));
         props.setProperty(ConfigurableProcessorsFactory.PARAM_PRE_PROCESSORS, preProcessors.join(","))
         props.setProperty(ConfigurableProcessorsFactory.PARAM_POST_PROCESSORS, postProcessors.join(","))
+
+        for (Map.Entry<String, String> entry: configProperties) {
+            props.setProperty(entry.key, entry.value)
+        }
 
         return props
     }

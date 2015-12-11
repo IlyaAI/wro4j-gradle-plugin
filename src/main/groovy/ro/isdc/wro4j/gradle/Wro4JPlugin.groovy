@@ -62,6 +62,7 @@ class Wro4JPlugin implements Plugin<Project> {
                 targetGroups = [bundle.name]
                 preProcessors = bundle.preProcessors
                 postProcessors = bundle.postProcessors
+                configProperties = bundle.configProperties
                 sourcesDir = tmpRoot
                 outputDir = dstRoot
 
