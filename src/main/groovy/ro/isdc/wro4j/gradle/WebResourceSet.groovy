@@ -1,5 +1,7 @@
 package ro.isdc.wro4j.gradle
 
+import org.apache.commons.io.FilenameUtils
+import org.apache.commons.lang.StringUtils
 import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
 import ro.isdc.wro.model.WroModel
@@ -82,6 +84,20 @@ class WebResourceSet {
      */
     File getBuildTestDir() {
         return buildTestDir
+    }
+
+    String getBuildMainUri() {
+        return asNormalizedUriPath(buildMainDir)
+    }
+
+    String getBuildTestUri() {
+        return asNormalizedUriPath(buildTestDir)
+    }
+
+    private static String asNormalizedUriPath(File file) {
+        def uri = file.toURI().path
+        uri = StringUtils.removeStart(uri, "/")
+        return StringUtils.removeEnd(uri, "/")
     }
 
     Collection<WebBundle> getBundles() {
