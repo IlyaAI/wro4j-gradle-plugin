@@ -1,13 +1,7 @@
 package ro.isdc.wro4j.gradle
 
 import nebula.test.ProjectSpec
-import org.gradle.api.DefaultTask
 import org.gradle.api.Task
-import org.gradle.api.internal.AbstractTask
-import ro.isdc.wro.model.WroModel
-import ro.isdc.wro.model.group.Group
-import ro.isdc.wro.model.resource.Resource
-import ro.isdc.wro.model.resource.ResourceType
 
 class Wro4JPluginTest extends ProjectSpec {
 
@@ -31,7 +25,7 @@ class Wro4JPluginTest extends ProjectSpec {
     def "should process web resources"() {
         given:
         WebResourceSet.get(project).with {
-            srcDir = new File(getClass().getResource("/root").toURI()).parentFile
+            srcMainDir = new File(getClass().getResource("/root").toURI()).parentFile
 
             bundle("core") {
                 js "js/**.js"
@@ -97,7 +91,7 @@ class Wro4JPluginTest extends ProjectSpec {
         given:
         def webResources = WebResourceSet.get(project)
         webResources.with {
-            srcDir = new File(getClass().getResource("/root").toURI()).parentFile
+            srcMainDir = new File(getClass().getResource("/root").toURI()).parentFile
 
             bundle("libs") {
                 js "webjars/mywebjar/1.0.0/my.webjar.js"
@@ -109,7 +103,7 @@ class Wro4JPluginTest extends ProjectSpec {
                 preProcessor "cssUrlRewriting"
             }
         }
-        project.dependencies.add("webjars", project.files("${webResources.srcDir}/my-webjar.jar"))
+        project.dependencies.add("webjars", project.files("${webResources.srcMainDir}/my-webjar.jar"))
 
         when:
         project.evaluate()
@@ -134,7 +128,7 @@ class Wro4JPluginTest extends ProjectSpec {
         given:
         def webResources = WebResourceSet.get(project)
         webResources.with {
-            srcDir = new File(getClass().getResource("/root").toURI()).parentFile
+            srcMainDir = new File(getClass().getResource("/root").toURI()).parentFile
 
             bundle("theme-default") {
                 css "webjars/mywebjar/1.0.0/my.webjar.css"
@@ -143,7 +137,7 @@ class Wro4JPluginTest extends ProjectSpec {
                 preProcessor "cssUrlRewriting"
             }
         }
-        project.dependencies.add("webjars", project.files("${webResources.srcDir}/my-webjar.jar"))
+        project.dependencies.add("webjars", project.files("${webResources.srcMainDir}/my-webjar.jar"))
 
         when:
         project.evaluate()
@@ -161,7 +155,7 @@ class Wro4JPluginTest extends ProjectSpec {
         given:
         def webResources = WebResourceSet.get(project)
         webResources.with {
-            srcDir = new File(getClass().getResource("/root").toURI()).parentFile
+            srcMainDir = new File(getClass().getResource("/root").toURI()).parentFile
 
             bundle("theme-default") {
                 css "webjars/mywebjar2/1.0.0/less/bootstrap.less"
@@ -170,7 +164,7 @@ class Wro4JPluginTest extends ProjectSpec {
                 preProcessor "less4j", "cssUrlRewriting"
             }
         }
-        project.dependencies.add("webjars", project.files("${webResources.srcDir}/my-webjar-2.jar"))
+        project.dependencies.add("webjars", project.files("${webResources.srcMainDir}/my-webjar-2.jar"))
 
         when:
         project.evaluate()

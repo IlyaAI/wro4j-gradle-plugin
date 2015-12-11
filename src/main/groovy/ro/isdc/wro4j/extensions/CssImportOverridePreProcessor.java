@@ -19,7 +19,7 @@ public class CssImportOverridePreProcessor extends LessCssImportPreProcessor {
     private final Map<String, String> overrides = new HashMap<String, String>();
 
     public CssImportOverridePreProcessor(Properties props) {
-        LOG.info("overrides {");
+        LOG.debug("overrides {");
         for (String key: props.stringPropertyNames()) {
             String from = decodeKey(key);
             if (from == null) {
@@ -28,9 +28,9 @@ public class CssImportOverridePreProcessor extends LessCssImportPreProcessor {
 
             String to = props.getProperty(key);
             overrides.put(from, to);
-            LOG.info("  {} -> {}", from, to);
+            LOG.debug("  {} -> {}", from, to);
         }
-        LOG.info("}");
+        LOG.debug("}");
     }
 
     @Override
@@ -47,7 +47,7 @@ public class CssImportOverridePreProcessor extends LessCssImportPreProcessor {
             }
         }
 
-        LOG.info("{} import(s) have been overridden.", overriddenCount);
+        LOG.debug("{} import(s) have been overridden.", overriddenCount);
 
         return imports;
     }

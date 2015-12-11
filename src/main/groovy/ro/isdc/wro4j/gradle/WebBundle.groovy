@@ -67,7 +67,7 @@ class WebBundle {
     /**
      * Defines JavaScript resources.
      *
-     * @param resources    resource uri-s against {@link WebResourceSet#srcDir}
+     * @param resources    resource uri-s against {@link WebResourceSet#srcMainDir}
      */
     void js(String... resources) {
         resources.each { resource ->
@@ -79,7 +79,7 @@ class WebBundle {
     /**
      * Defines Cascade Style Sheet resources.
      *
-     * @param resources    resource uri-s against {@link WebResourceSet#srcDir}
+     * @param resources    resource uri-s against {@link WebResourceSet#srcMainDir}
      */
     void css(String... resources) {
         resources.each { resource ->
@@ -92,7 +92,7 @@ class WebBundle {
      * Defines special pre-processor to override specified import with given one.
      * E.g. this useful to provide custom variables.less for Twitter Bootstrap taken from webjar.
      *
-     * @param resources    resource uri-s against {@link WebResourceSet#srcDir}
+     * @param resources    resource uri-s against {@link WebResourceSet#srcMainDir}
      */
     void cssOverrideImport(String from, String with) {
         preProcessor(CssImportOverridePreProcessor.ALIAS)

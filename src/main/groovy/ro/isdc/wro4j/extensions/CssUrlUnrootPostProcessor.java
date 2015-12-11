@@ -23,7 +23,7 @@ public class CssUrlUnrootPostProcessor implements ResourcePostProcessor {
 
     @Override
     public void process(Reader reader, Writer writer) throws IOException {
-        LOG.info("Unrooting CSS url-s...");
+        LOG.debug("Unrooting CSS url-s...");
         try {
             String css = IOUtils.toString(reader);
             String result = new CssUrlInspector().findAndReplace(css, createUrlHandler());
@@ -33,7 +33,7 @@ public class CssUrlUnrootPostProcessor implements ResourcePostProcessor {
             reader.close();
             writer.close();
         }
-        LOG.info("...CSS url-s successfully replaced.");
+        LOG.debug("...CSS url-s successfully replaced.");
     }
 
     private CssUrlInspector.ItemHandler createUrlHandler() {
