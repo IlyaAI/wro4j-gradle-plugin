@@ -75,7 +75,7 @@ class Wro4JPluginTest extends ProjectSpec {
         def defaultText = cssDefault.getText()
         defaultText.contains(".logo{")
         defaultText.contains(".helper{color:gray;}")
-        defaultText.contains("url(\"./css/default/images/logo.png\"")
+        defaultText.contains("url(\"css/default/images/logo.png\"")
 
         def logoPng = new File(project.buildDir, "resources/main/static/css/default/images/logo.png")
         logoPng.exists()
@@ -124,7 +124,7 @@ class Wro4JPluginTest extends ProjectSpec {
         def cssDefault = new File(project.buildDir, "resources/main/static/theme-default.css")
         cssDefault.exists()
         def defaultText = cssDefault.getText()
-        defaultText.contains("url(\"./webjars/mywebjar/1.0.0/images/logo.png\"")
+        defaultText.contains("url(\"webjars/mywebjar/1.0.0/images/logo.png\"")
 
         def jsDir = new File(project.buildDir, "resources/main/static/js")
         !jsDir.exists()
@@ -155,5 +155,31 @@ class Wro4JPluginTest extends ProjectSpec {
         def defaultText = cssDefault.getText()
         defaultText.contains(".title { color: white; }")
         defaultText.contains(".text { color: lightgray; }")
+    }
+
+    def "should override css import in webjar"() {
+        given:
+        def webResources = WebResourceSet.get(project)
+        webResources.with {
+            srcDir = new File(getClass().getResource("/root").toURI()).parentFile
+
+            bundle("theme-default") {
+                css "webjars/mywebjar2/1.0.0/less/bootstrap.less"
+
+                cssOverrideImport "variables.less", "../../../../css/default/my.variables.less"
+                preProcessor "less4j", "cssUrlRewriting"
+            }
+        }
+        project.dependencies.add("webjars", project.files("${webResources.srcDir}/my-webjar-2.jar"))
+
+        when:
+        project.evaluate()
+        processWebResources()
+
+        then:
+        def cssDefault = new File(project.buildDir, "resources/main/static/theme-default.css")
+        cssDefault.exists()
+        def defaultText = cssDefault.getText()
+        defaultText.contains("'webjars/mywebjar2/1.0.0/fonts/glyphicons-halflings-regular.eot'")
     }
 }

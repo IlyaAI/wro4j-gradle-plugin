@@ -18,7 +18,7 @@ dependencies {
         exclude module: 'groovy-all'
     }
     compile 'org.mockito:mockito-all:1.10.19'
-    compile 'commons-lang:commons-lang:2.4'
+    compile 'commons-lang:commons-lang:2.6'
 
     runtime 'javax.servlet:javax.servlet-api:3.1.0'
 

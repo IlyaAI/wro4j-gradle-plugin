@@ -57,7 +57,7 @@ public class WebCompileTask extends DefaultTask {
     }
 
     void setTargetGroups(Set<String> groups) {
-        targetGroups = groups
+        targetGroups = new HashSet<>(groups)
     }
 
     @Input
@@ -66,7 +66,7 @@ public class WebCompileTask extends DefaultTask {
     }
 
     void setPreProcessors(List<String> pre) {
-        preProcessors = pre
+        preProcessors = new ArrayList<>(pre)
     }
 
     @Input
@@ -75,7 +75,7 @@ public class WebCompileTask extends DefaultTask {
     }
 
     void setPostProcessors(List<String> post) {
-        postProcessors = post
+        postProcessors = new ArrayList<>(post)
     }
 
     @InputDirectory
@@ -101,7 +101,7 @@ public class WebCompileTask extends DefaultTask {
     }
 
     void setConfigProperties(Map<String, String> configProperties) {
-        this.configProperties = configProperties
+        this.configProperties = new HashMap<>(configProperties)
     }
 
     @TaskAction
@@ -149,7 +149,7 @@ public class WebCompileTask extends DefaultTask {
             })
 
         def request = Mockito.mock(HttpServletRequest)
-        Mockito.when(request.getContextPath()).thenReturn(".")
+        Mockito.when(request.getContextPath()).thenReturn("")
         Mockito.when(request.getServletPath()).thenReturn("")
         Mockito.when(request.getRequestURI()).thenReturn(group)
         Mockito.when(request.getRequestURL()).thenReturn(requestUrl)

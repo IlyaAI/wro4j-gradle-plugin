@@ -8,6 +8,7 @@ import org.gradle.api.file.RelativePath
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSet
+import ro.isdc.wro4j.extensions.CssUrlUnrootPostProcessor
 
 class Wro4JPlugin implements Plugin<Project> {
 
@@ -62,6 +63,9 @@ class Wro4JPlugin implements Plugin<Project> {
                 targetGroups = [bundle.name]
                 preProcessors = bundle.preProcessors
                 postProcessors = bundle.postProcessors
+                if (bundle.hasCss) {
+                    postProcessors.add(CssUrlUnrootPostProcessor.ALIAS)
+                }
                 configProperties = bundle.configProperties
                 sourcesDir = tmpRoot
                 outputDir = dstRoot

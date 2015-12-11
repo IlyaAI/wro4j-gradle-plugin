@@ -11,6 +11,8 @@ class WebBundle {
     private final List<String> postProcessors = []
     private Map<String, String> configProperties = new HashMap<>()
     private final Group group
+    private boolean hasJs = false
+    private boolean hasCss = false
 
     WebBundle(String name) {
         group = new Group(name)
@@ -22,6 +24,14 @@ class WebBundle {
 
     Group getGroup() {
         return group
+    }
+
+    boolean getHasJs() {
+        return hasJs
+    }
+
+    boolean getHasCss() {
+        return hasCss
     }
 
     List<String> getPreProcessors() {
@@ -63,6 +73,7 @@ class WebBundle {
         resources.each { resource ->
             group.addResource(Resource.create(uriOf(resource), ResourceType.JS))
         }
+        hasJs = true
     }
 
     /**
@@ -74,6 +85,7 @@ class WebBundle {
         resources.each { resource ->
             group.addResource(Resource.create(uriOf(resource), ResourceType.CSS))
         }
+        hasCss = true
     }
 
     /**
