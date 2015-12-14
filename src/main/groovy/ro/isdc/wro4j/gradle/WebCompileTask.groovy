@@ -1,7 +1,8 @@
 package ro.isdc.wro4j.gradle
 
 import org.apache.commons.io.IOUtils
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang.StringUtils
+import org.apache.commons.lang.builder.HashCodeBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -39,8 +40,15 @@ public class WebCompileTask extends DefaultTask {
     }
 
     @Input
-    String getWroModelHash() {
-        return wroModel.toString()
+    int getWroModelHash() {
+        def hashBuilder = new HashCodeBuilder()
+        for (def group: wroModel.groups) {
+            if (targetGroups.contains(group.name)) {
+                hashBuilder.append(group)
+            }
+        }
+
+        return hashBuilder.toHashCode()
     }
 
     WroModel getWroModel() {
