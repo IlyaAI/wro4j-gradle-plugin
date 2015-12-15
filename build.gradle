@@ -1,9 +1,19 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
+    }
+}
 
 group = 'ro.isdc.wro4j.gradle'
 version = '1.7.9'
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -24,5 +34,30 @@ dependencies {
 
     testCompile ('com.netflix.nebula:nebula-test:3.1.0') {
         exclude module: 'groovy-all'
+    }
+}
+
+bintray {
+    user = System.getProperty('bintrayUser')
+    key = System.getProperty('bintrayApiKey')
+    pkg {
+        repo = 'maven'
+        name = 'wro4j-gradle-plugin'
+        desc = 'Wro4J Gradle Plugin'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/IlyaAI/wro4j-gradle-plugin.git'
+        labels = ['wro4j', 'gradle', 'plugin']
+    }
+    publications = ['bintray']
+}
+
+publishing {
+    publications {
+        bintray (MavenPublication) {
+            from components.java
+            groupId project.group
+            artifactId project.name
+            version project.version
+        }
     }
 }
