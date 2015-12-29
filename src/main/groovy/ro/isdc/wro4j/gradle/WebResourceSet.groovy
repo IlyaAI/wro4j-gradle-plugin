@@ -86,17 +86,31 @@ class WebResourceSet {
         return buildTestDir
     }
 
+    /**
+     * Path to intermediate build directory for main sources in URL/URI path style.
+     * Might be safely used for substitution in .js and .html files.
+     *
+     * @return intermediate build directory for main sources in URL/URI path style
+     */
     String getBuildMainUri() {
         return asNormalizedUriPath(buildMainDir)
     }
 
+    /**
+     * Path to intermediate build directory for test sources in URL/URI path style.
+     * Might be safely used for substitution in .js and .html files.
+     *
+     * @return intermediate build directory for test sources in URL/URI path style
+     */
     String getBuildTestUri() {
         return asNormalizedUriPath(buildTestDir)
     }
 
     private static String asNormalizedUriPath(File file) {
         def uri = file.toURI().path
-        uri = StringUtils.removeStart(uri, "/")
+        if (System.getProperty("os.name", "").toLowerCase().contains("win")) {
+            uri = StringUtils.removeStart(uri, "/")
+        }
         return StringUtils.removeEnd(uri, "/")
     }
 
