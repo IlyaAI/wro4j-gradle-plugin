@@ -8,30 +8,25 @@ import ro.isdc.wro.model.resource.ResourceType
 
 class WebCompileTaskBasicTest extends ProjectSpec {
 
+    WebBundle jsBundle;
+    WebBundle cssBundle;
     WebCompileTask task
 
     def setup() {
-        def wroModel = new WroModel()
+        jsBundle = new WebBundle(project, "js-test")
+        jsBundle.js("/test-1.js", "/test-2.js")
 
-        def jsGroup = new Group("js-test")
-        jsGroup.addResource(Resource.create("/test-1.js", ResourceType.JS))
-        jsGroup.addResource(Resource.create("/test-2.js", ResourceType.JS))
-        wroModel.addGroup(jsGroup)
-
-        def cssGroup = new Group("css-test")
-        cssGroup.addResource(Resource.create("/test-1.css", ResourceType.CSS))
-        cssGroup.addResource(Resource.create("/test-2.css", ResourceType.CSS))
-        wroModel.addGroup(cssGroup)
+        cssBundle = new WebBundle(project, "css-test")
+        cssBundle.css("/test-1.css", "/test-2.css")
 
         task = project.tasks.create('compileWebTest', WebCompileTask)
-        task.wroModel = wroModel
         task.sourcesDir = new File(getClass().getResource("/root").toURI()).parentFile
         task.outputDir = project.buildDir
     }
 
     def "should bundle js"() {
         given:
-        task.targetGroups = ["js-test"]
+        task.bundle = jsBundle
 
         when:
         project.evaluate()
@@ -47,8 +42,8 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should apply js pre-processors"() {
         given:
-        task.targetGroups = ["js-test"]
-        task.preProcessors = ["jsMin"]
+        jsBundle.preProcessor("jsMin")
+        task.bundle = jsBundle
 
         when:
         project.evaluate()
@@ -64,8 +59,8 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should apply js post-processors"() {
         given:
-        task.targetGroups = ["js-test"]
-        task.postProcessors = ["jsMin"]
+        jsBundle.postProcessor("jsMin")
+        task.bundle = jsBundle
 
         when:
         project.evaluate()
@@ -81,7 +76,7 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should bundle css"() {
         given:
-        task.targetGroups = ["css-test"]
+        task.bundle = cssBundle
 
         when:
         project.evaluate()
@@ -97,8 +92,8 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should apply css pre-processors"() {
         given:
-        task.targetGroups = ["css-test"]
-        task.preProcessors = ["cssMin"]
+        cssBundle.preProcessor("cssMin")
+        task.bundle = cssBundle
 
         when:
         project.evaluate()
@@ -114,8 +109,8 @@ class WebCompileTaskBasicTest extends ProjectSpec {
 
     def "should apply css post-processors"() {
         given:
-        task.targetGroups = ["css-test"]
-        task.postProcessors = ["cssMin"]
+        cssBundle.postProcessor("cssMin")
+        task.bundle = cssBundle
 
         when:
         project.evaluate()

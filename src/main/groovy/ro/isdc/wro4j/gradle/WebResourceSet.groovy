@@ -1,10 +1,8 @@
 package ro.isdc.wro4j.gradle
 
-import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.StringUtils
 import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
-import ro.isdc.wro.model.WroModel
 
 class WebResourceSet {
     private static final String STATIC = "static"
@@ -128,7 +126,7 @@ class WebResourceSet {
     void bundle(String name, Closure configure) {
         def bundle = bundles.get(name)
         if (bundle == null) {
-            bundle = new WebBundle(name)
+            bundle = new WebBundle(project, name)
             bundles.put(name, bundle)
         }
 
@@ -165,14 +163,6 @@ class WebResourceSet {
         configure.delegate = testAssets
         configure.resolveStrategy = Closure.DELEGATE_FIRST
         configure()
-    }
-
-    WroModel createWroModel() {
-        def wro = new WroModel()
-        bundles.values().each { bundle ->
-            wro.addGroup(bundle.group)
-        }
-        return wro
     }
 
     CopySpec getMainAssets() {

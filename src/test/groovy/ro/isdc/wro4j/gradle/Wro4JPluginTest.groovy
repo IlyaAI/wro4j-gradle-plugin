@@ -12,10 +12,11 @@ class Wro4JPluginTest extends ProjectSpec {
 
     def processWebResources() {
         project.tasks.getByPath("prepareAssets").execute()
+        project.tasks.getByPath("prepareWebjars").execute()
 
         def processWebResources = project.tasks.getByPath("processWebResources")
         processWebResources.dependsOn.each { task ->
-            if ((task instanceof Task) && task.name != "prepareAssets") {
+            if (task instanceof WebCompileTask) {
                 task.execute()
             }
         }
@@ -28,7 +29,7 @@ class Wro4JPluginTest extends ProjectSpec {
             srcMainDir = new File(getClass().getResource("/root").toURI()).parentFile
 
             bundle("core") {
-                js "js/**.js"
+                js "js/**/*.js"
                 preProcessor "jsMin"
             }
 
@@ -39,7 +40,8 @@ class Wro4JPluginTest extends ProjectSpec {
             bundle("theme-default") {
                 css "css/default/*.css"
 
-                preProcessor "cssUrlRewriting", "cssMin"
+                preProcessor "cssMin"
+                cssRewriteUrl()
             }
 
             assets {
@@ -100,7 +102,7 @@ class Wro4JPluginTest extends ProjectSpec {
             bundle("theme-default") {
                 css "webjars/mywebjar/1.0.0/my.webjar.css"
 
-                preProcessor "cssUrlRewriting"
+                cssRewriteUrl()
             }
         }
         project.dependencies.add("webjars", project.files("${webResources.srcMainDir}/my-webjar.jar"))
@@ -161,7 +163,8 @@ class Wro4JPluginTest extends ProjectSpec {
                 css "webjars/mywebjar2/1.0.0/less/bootstrap.less"
 
                 cssOverrideImport "variables.less", "../../../../css/default/my.variables.less"
-                preProcessor "less4j", "cssUrlRewriting"
+                preProcessor "less4j"
+                cssRewriteUrl()
             }
         }
         project.dependencies.add("webjars", project.files("${webResources.srcMainDir}/my-webjar-2.jar"))

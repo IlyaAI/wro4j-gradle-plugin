@@ -8,28 +8,25 @@ import ro.isdc.wro.model.resource.ResourceType
 
 class WebCompileTaskWildcardsTest extends ProjectSpec {
 
+    WebBundle jsSimple;
+    WebBundle jsDeep;
     WebCompileTask task
 
     def setup() {
-        def wroModel = new WroModel()
+        jsSimple = new WebBundle(project, "simple-wildcards")
+        jsSimple.js("/*.js")
 
-        def jsSimple = new Group("simple-wildcards")
-        jsSimple.addResource(Resource.create("/*.js", ResourceType.JS))
-        wroModel.addGroup(jsSimple)
-
-        def jsDeep = new Group("deep-wildcards")
-        jsDeep.addResource(Resource.create("/**.js", ResourceType.JS))
-        wroModel.addGroup(jsDeep)
+        jsDeep = new WebBundle(project, "deep-wildcards")
+        jsDeep.js("/**/*.js")
 
         task = project.tasks.create('compileWebTest', WebCompileTask)
-        task.wroModel = wroModel
         task.sourcesDir = new File(getClass().getResource("/root").toURI()).parentFile
         task.outputDir = project.buildDir
     }
 
     def "should support simple wildcards"() {
         given:
-        task.targetGroups = ["simple-wildcards"]
+        task.bundle = jsSimple
 
         when:
         project.evaluate()
@@ -47,7 +44,7 @@ class WebCompileTaskWildcardsTest extends ProjectSpec {
 
     def "should support deep wildcards"() {
         given:
-        task.targetGroups = ["deep-wildcards"]
+        task.bundle = jsDeep
 
         when:
         project.evaluate()

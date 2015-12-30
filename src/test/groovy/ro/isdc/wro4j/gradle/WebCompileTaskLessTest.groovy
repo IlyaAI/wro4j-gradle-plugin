@@ -11,23 +11,17 @@ class WebCompileTaskLessTest extends ProjectSpec {
     WebCompileTask task
 
     def setup() {
-        def wroModel = new WroModel()
-
-        def cssGroup = new Group("less")
-        cssGroup.addResource(Resource.create("/test-5.less", ResourceType.CSS))
-        wroModel.addGroup(cssGroup)
+        def cssBundle = new WebBundle(project, "less")
+        cssBundle.css("/test-5.less")
+        cssBundle.preProcessor("less4j")
 
         task = project.tasks.create('compileLessTest', WebCompileTask)
-        task.wroModel = wroModel
-        task.preProcessors = ["less4j"]
+        task.bundle = cssBundle
         task.sourcesDir = new File(getClass().getResource("/root").toURI()).parentFile
         task.outputDir = project.buildDir
     }
 
     def "should compile less to css"() {
-        given:
-        task.targetGroups = ["less"]
-
         when:
         project.evaluate()
         task.execute()

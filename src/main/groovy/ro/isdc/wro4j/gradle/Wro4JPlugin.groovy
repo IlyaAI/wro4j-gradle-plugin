@@ -45,7 +45,6 @@ class Wro4JPlugin implements Plugin<Project> {
     private void configureTasks(WebResourceSet webResources, Project project, JavaPluginConvention javaConvention) {
         def srcMain = javaConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 
-        def model = webResources.createWroModel()
         def srcMainDir = webResources.srcMainDir
         def srcTestDir = webResources.srcTestDir
         def buildMainDir = webResources.buildMainDir
@@ -56,33 +55,32 @@ class Wro4JPlugin implements Plugin<Project> {
         buildTestDir.mkdirs()
 
         /* Configure processWebResources task */
-        def webjars = project.configurations.getByName("webjars")
         def prepareAssets = project.tasks.create("prepareAssets", Copy)
         prepareAssets.with {
             from srcMainDir
+            into buildMainDir
+        }
+        processWebResources.dependsOn prepareAssets
+
+        def webjars = project.configurations.getByName("webjars")
+        def prepareWebjars = project.tasks.create("prepareWebjars", Copy)
+        prepareWebjars.with {
             from (webjars.collect { project.zipTree(it) }) {
                 eachFile { unwrapWebjar(it) }
             }
             into buildMainDir
         }
-        processWebResources.dependsOn prepareAssets
+        processWebResources.dependsOn prepareWebjars
         project.configurations.getByName("runtime").extendsFrom(webjars)
 
         webResources.bundles.each { bundle ->
             def compileWeb = project.tasks.create(nameFor("compileWeb", bundle.name), WebCompileTask)
             compileWeb.with {
-                wroModel = model
-                targetGroups = [bundle.name]
-                preProcessors = bundle.preProcessors
-                postProcessors = bundle.postProcessors
-                if (bundle.hasCss) {
-                    postProcessors.add(CssUrlUnrootPostProcessor.ALIAS)
-                }
-                configProperties = bundle.configProperties
+                it.bundle = bundle
                 sourcesDir = buildMainDir
                 outputDir = dstDir
 
-                mustRunAfter prepareAssets
+                dependsOn prepareAssets, prepareWebjars
             }
             processWebResources.dependsOn compileWeb
         }
@@ -98,13 +96,18 @@ class Wro4JPlugin implements Plugin<Project> {
 
         /* Configure processWebTestResources task */
         def webjarsTest = project.configurations.getByName("webjarsTest")
-        processWebTestResources.with {
+        def prepareWebjarsTest = project.tasks.create("prepareWebjarsTest", Copy)
+        prepareWebjarsTest.with {
             from (webjarsTest.collect { project.zipTree(it) }) {
                 eachFile { unwrapWebjar(it) }
             }
             into buildTestDir
+        }
 
-            dependsOn prepareAssets
+        processWebTestResources.with {
+            into buildTestDir
+
+            dependsOn prepareAssets, prepareWebjarsTest
         }
         if (webResources.testAssets != null) {
             processWebTestResources.with webResources.testAssets.from(srcTestDir)

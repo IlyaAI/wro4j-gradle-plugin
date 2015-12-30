@@ -8,31 +8,27 @@ import ro.isdc.wro.model.resource.ResourceType
 
 class WebCompileTaskUrlRewriteTest extends ProjectSpec {
 
+    WebBundle cssBundleA
+    WebBundle cssBundleB
     WebCompileTask task
 
     def setup() {
-        def wroModel = new WroModel()
+        cssBundleA = new WebBundle(project, "url-rewrite-1")
+        cssBundleA.css("/a/test-3.css", "/b/test-4.css")
+        cssBundleA.cssRewriteUrl()
 
-        def cssGroup = new Group("url-rewrite-1")
-        cssGroup.addResource(Resource.create("/a/test-3.css", ResourceType.CSS))
-        cssGroup.addResource(Resource.create("/b/test-4.css", ResourceType.CSS))
-        wroModel.addGroup(cssGroup)
-
-        cssGroup = new Group("url-rewrite-2")
-        cssGroup.addResource(Resource.create("/c/d/test-8.css", ResourceType.CSS))
-        wroModel.addGroup(cssGroup)
+        cssBundleB = new WebBundle(project, "url-rewrite-2")
+        cssBundleB.css("/c/d/test-8.css")
+        cssBundleA.cssRewriteUrl()
 
         task = project.tasks.create('compileCssTest', WebCompileTask)
-        task.wroModel = wroModel
-        task.preProcessors = ["cssUrlRewriting"]
         task.sourcesDir = new File(getClass().getResource("/root").toURI()).parentFile
         task.outputDir = project.buildDir
     }
 
     def "should change image url"() {
         given:
-        task.targetGroups = ["url-rewrite-1"]
-        task.postProcessors = ["cssUrlUnroot"]
+        task.bundle = cssBundleA
 
         when:
         project.evaluate()
@@ -48,9 +44,9 @@ class WebCompileTaskUrlRewriteTest extends ProjectSpec {
 
     def "should change deep image url"() {
         given:
-        task.targetGroups = ["url-rewrite-2"]
-        task.preProcessors = ["cssImport", "cssUrlRewriting"]
-        task.postProcessors = ["cssUrlUnroot"]
+        cssBundleB.preProcessor("cssImport")
+        cssBundleB.cssRewriteUrl()
+        task.bundle = cssBundleB
 
         when:
         project.evaluate()

@@ -1,0 +1,6 @@
+## Release Notes ##
+
+### 1.7.9-Beta2
+
+* [*] Wildcards inside webResource.bundle resolved via Gradle API now.
+* [*] Up-to-date check improved (per-file level now).
