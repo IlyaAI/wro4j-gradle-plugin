@@ -2,7 +2,7 @@
 
 Provides build-time solution for wro4j with Gradle.
 
-Latest release: 1.7.9-Beta1
+Latest release: 1.7.9-Beta2
 
 ## Getting Started
 
@@ -55,7 +55,7 @@ dependencies {
 ```groovy
 webResources {
     bundle ('core') {
-        js 'js/**.js'
+        js 'js/**/*.js'
         preProcessor 'jsMin'
     }
 
