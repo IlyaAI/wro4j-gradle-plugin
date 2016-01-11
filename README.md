@@ -2,7 +2,7 @@
 
 Provides build-time solution for wro4j with Gradle.
 
-Latest release: 1.7.9-Beta2
+Latest release: 1.7.9.Beta2
 
 ## Getting Started
 
@@ -35,7 +35,7 @@ buildscript {
         maven { url 'https://dl.bintray.com/ilyaai/maven' }
     }
     dependencies {
-        classpath 'ro.isdc.wro4j.gradle:wro4j-gradle-plugin:1.7.9-Beta1'
+        classpath 'ro.isdc.wro4j.gradle:wro4j-gradle-plugin:1.7.9.Beta2'
     }
 }
 apply plugin: 'java'

@@ -8,7 +8,7 @@ buildscript {
 }
 
 group = 'ro.isdc.wro4j.gradle'
-version = '1.7.9-Beta2'
+version = '1.7.9.Beta2'
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
@@ -51,10 +51,19 @@ bintray {
     publications = ['bintray']
 }
 
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+}
+
 publishing {
     publications {
         bintray (MavenPublication) {
             from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+
             groupId project.group
             artifactId project.name
             version project.version
