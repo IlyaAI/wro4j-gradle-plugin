@@ -1,6 +1,10 @@
 ## Release Notes ##
 
-### 1.7.9-Beta2
+### 1.7.9.Beta2
 
 * [*] Wildcards inside webResource.bundle resolved via Gradle API now.
 * [*] Up-to-date check improved (per-file level now).
+
+### 1.7.9.Beta3
+
+* [*] webjars configurations revised to improve js/css indexing in IDEs.

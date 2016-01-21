@@ -23,8 +23,21 @@ class Wro4JPlugin implements Plugin<Project> {
         }
 
         def webResources = project.extensions.create(WebResourceSet.NAME, WebResourceSet, project)
-        project.configurations.create("webjars")
-        project.configurations.create("webjarsTest")
+        def webjarsRuntime = project.configurations.create("webjarsRuntime")
+        def webjars = project.configurations
+                .create("webjars")
+                .extendsFrom(webjarsRuntime)
+        def webjarsTest = project.configurations.create("webjarsTest")
+
+        /* Only webjarsRuntime will be included in final dependencies */
+        project.configurations
+                .getByName("runtime")
+                .extendsFrom(webjarsRuntime)
+
+        /* webjars and webjarsTest are included in testCompile to allow IDEs (like IntelliJ IDEA) index js/css sources */
+        project.configurations
+                .getByName("testCompile")
+                .extendsFrom(webjars, webjarsTest)
 
         processWebResources = project.tasks.create("processWebResources", Copy)
         processWebTestResources = project.tasks.create("processWebTestResources", Copy)
@@ -71,7 +84,6 @@ class Wro4JPlugin implements Plugin<Project> {
             into buildMainDir
         }
         processWebResources.dependsOn prepareWebjars
-        project.configurations.getByName("runtime").extendsFrom(webjars)
 
         webResources.bundles.each { bundle ->
             def compileWeb = project.tasks.create(nameFor("compileWeb", bundle.name), WebCompileTask)
