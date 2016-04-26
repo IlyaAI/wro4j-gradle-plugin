@@ -3,12 +3,12 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
     }
 }
 
 group = 'ro.isdc.wro4j.gradle'
-version = '1.7.9.Beta2'
+version = '1.7.9.Beta3'
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile ('ro.isdc.wro4j:wro4j-extensions:1.7.9') {
+    compile ('ro.isdc.wro4j:wro4j-extensions:1.8.0') {
         exclude module: 'groovy-all'
     }
     compile 'org.mockito:mockito-all:1.10.19'
@@ -32,7 +32,7 @@ dependencies {
 
     runtime 'javax.servlet:javax.servlet-api:3.1.0'
 
-    testCompile ('com.netflix.nebula:nebula-test:3.1.0') {
+    testCompile ('com.netflix.nebula:nebula-test:4.0.0') {
         exclude module: 'groovy-all'
     }
 }
