@@ -8,3 +8,7 @@
 ### 1.7.9.Beta3
 
 * [*] webjars configurations revised to improve js/css indexing in IDEs.
+
+### 1.8.0.Beta3
+
+* [*] wro4j dependency upgraded to 1.8.0
