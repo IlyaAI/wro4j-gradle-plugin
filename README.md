@@ -2,7 +2,7 @@
 
 Provides build-time solution for wro4j with Gradle.
 
-Latest release: 1.7.9.Beta2
+Latest release: 1.7.9.Beta3
 
 ## Getting Started
 
@@ -32,10 +32,10 @@ Files from `static` folder will be copied to output as is by default but for js 
 ```groovy
 buildscript {
     repositories {
-        maven { url 'https://dl.bintray.com/ilyaai/maven' }
+        jcenter()
     }
     dependencies {
-        classpath 'ro.isdc.wro4j.gradle:wro4j-gradle-plugin:1.7.9.Beta2'
+        classpath 'ro.isdc.wro4j.gradle:wro4j-gradle-plugin:1.7.9.Beta3'
     }
 }
 apply plugin: 'java'
