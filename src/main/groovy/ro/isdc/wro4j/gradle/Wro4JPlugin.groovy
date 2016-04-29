@@ -9,9 +9,9 @@ import org.gradle.api.file.RelativePath
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSet
-import ro.isdc.wro4j.extensions.CssUrlUnrootPostProcessor
 
 class Wro4JPlugin implements Plugin<Project> {
+    private Copy prepareAssets
     private Copy processWebResources
     private Copy processWebTestResources
 
@@ -39,7 +39,9 @@ class Wro4JPlugin implements Plugin<Project> {
                 .getByName("testCompile")
                 .extendsFrom(webjars, webjarsTest)
 
+        prepareAssets = project.tasks.create("prepareAssets", Copy)
         processWebResources = project.tasks.create("processWebResources", Copy)
+        processWebResources.dependsOn prepareAssets
         processWebTestResources = project.tasks.create("processWebTestResources", Copy)
 
         project.tasks
@@ -62,13 +64,12 @@ class Wro4JPlugin implements Plugin<Project> {
         def srcTestDir = webResources.srcTestDir
         def buildMainDir = webResources.buildMainDir
         def buildTestDir = webResources.buildTestDir
-        def dstDir = new File(srcMain.output.resourcesDir, webResources.staticFolder)
+        def dstDir = new File(srcMain.output.resourcesDir, webResources.dstStaticFolder)
 
         buildMainDir.mkdirs()
         buildTestDir.mkdirs()
 
         /* Configure processWebResources task */
-        def prepareAssets = project.tasks.create("prepareAssets", Copy)
         prepareAssets.with {
             from srcMainDir
             into buildMainDir
@@ -98,7 +99,7 @@ class Wro4JPlugin implements Plugin<Project> {
         }
 
         processWebResources.with {
-            from new File(buildMainDir, webResources.staticFolder)
+            from new File(buildMainDir, webResources.srcStaticFolder)
             into dstDir
         }
         if (webResources.mainAssets != null) {

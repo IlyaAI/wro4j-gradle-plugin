@@ -14,7 +14,8 @@ class WebResourceSet {
     private CopySpec testAssets
     private File srcMainDir
     private File srcTestDir
-    private String staticFolder
+    private String srcStaticFolder
+    private String dstStaticFolder
     private File buildMainDir
     private File buildTestDir
 
@@ -22,7 +23,7 @@ class WebResourceSet {
         this.project = project
         this.srcMainDir = project.file("src/main/webResources")
         this.srcTestDir = project.file("src/test/webResources")
-        this.staticFolder = STATIC
+        this.srcStaticFolder = this.dstStaticFolder = STATIC
         this.buildMainDir = new File(project.buildDir, "wro")
         this.buildTestDir = new File(project.buildDir, "wroTest")
     }
@@ -54,16 +55,29 @@ class WebResourceSet {
     }
 
     /**
-     * Folder name for webapp static content. Default 'static'.
+     * Source folder name for webapp static content. Default 'static'.
      *
      * @return folder for static content
      */
-    String getStaticFolder() {
-        return staticFolder
+    String getSrcStaticFolder() {
+        return srcStaticFolder
     }
 
-    void setStaticFolder(String staticFolder) {
-        this.staticFolder = staticFolder
+    void setSrcStaticFolder(String folder) {
+        this.srcStaticFolder = folder
+    }
+
+    /**
+     * Destination folder name for webapp static content. Default 'static'.
+     *
+     * @return folder for static content
+     */
+    String getDstStaticFolder() {
+        return dstStaticFolder
+    }
+
+    void setDstStaticFolder(String folder) {
+        this.dstStaticFolder = folder
     }
 
     /**

@@ -28,6 +28,7 @@ import javax.servlet.FilterConfig
 import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import java.util.zip.GZIPOutputStream
 
 public class WebCompileTask extends DefaultTask {
     private final List<String> uriLocators = ["servletContext"]
@@ -113,10 +114,20 @@ public class WebCompileTask extends DefaultTask {
 
         def outFiles = new HashSet<File>()
         if (bundle.hasJs) {
-            outFiles.add(new File(outputDir, jsNameOf(bundle)))
+            def jsName = jsNameOf(bundle);
+            outFiles.add(new File(outputDir, jsName))
+
+            if (bundle.gzipped) {
+                outFiles.add(new File(outputDir, gzNameOf(jsName)))
+            }
         }
         if (bundle.hasCss) {
-            outFiles.add(new File(outputDir, cssNameOf(bundle)))
+            def cssName = cssNameOf(bundle);
+            outFiles.add(new File(outputDir, cssName))
+
+            if (bundle.gzipped) {
+                outFiles.add(new File(outputDir, gzNameOf(cssName)))
+            }
         }
 
         if (getLogger().isDebugEnabled()) {
@@ -134,10 +145,10 @@ public class WebCompileTask extends DefaultTask {
         def wroModel = createWroModel()
 
         if (bundle.hasJs) {
-            processGroup(wroModel, jsNameOf(bundle))
+            processGroup(wroModel, jsNameOf(bundle), bundle.gzipped)
         }
         if (bundle.hasCss) {
-            processGroup(wroModel, cssNameOf(bundle))
+            processGroup(wroModel, cssNameOf(bundle), bundle.gzipped)
         }
     }
 
@@ -185,7 +196,7 @@ public class WebCompileTask extends DefaultTask {
         return props
     }
 
-    private void processGroup(WroModel wroModel, String group) {
+    private void processGroup(WroModel wroModel, String group, boolean gzipped) {
         getLogger().info("Processing group '{}'...", group)
 
         def requestUrl = new StringBuffer()
@@ -235,7 +246,22 @@ public class WebCompileTask extends DefaultTask {
                 IOUtils.copy(input, it)
             };
 
-            getLogger().info("There are {}B generated into '{}'.", output.size(), destinationFile)
+            getLogger().info("{} => {} / {}B", group, destinationFile, destinationFile.length())
+
+            if (gzipped) {
+                getLogger().debug("  compressing")
+
+                destinationFile = new File(outputDir, gzNameOf(stampedName))
+
+                new GZIPOutputStream(
+                    new FileOutputStream(destinationFile)
+                ).withStream {
+                    input.reset()
+                    IOUtils.copy(input, it)
+                };
+
+                getLogger().info("  => {} / {}B", destinationFile, destinationFile.length())
+            }
         } finally {
             Context.unset()
         }
@@ -247,6 +273,10 @@ public class WebCompileTask extends DefaultTask {
 
     private static String cssNameOf(WebBundle bundle) {
         return bundle.name + ".css"
+    }
+
+    private static String gzNameOf(String baseName) {
+        return baseName + ".gz"
     }
 
     private static String uriOf(String resource) {

@@ -5,11 +5,6 @@ import org.apache.commons.lang.StringUtils
 import org.gradle.api.Project
 import org.gradle.api.file.RelativePath
 import org.gradle.api.tasks.Input
-import ro.isdc.wro.model.WroModel
-import ro.isdc.wro.model.group.Group
-import ro.isdc.wro.model.resource.Resource
-import ro.isdc.wro.model.resource.ResourceType
-import ro.isdc.wro.model.resource.locator.ServletContextUriLocator
 import ro.isdc.wro.model.resource.processor.impl.css.CssUrlRewritingProcessor
 import ro.isdc.wro4j.extensions.CssImportOverridePreProcessor
 import ro.isdc.wro4j.extensions.CssUrlUnrootPostProcessor
@@ -22,6 +17,7 @@ class WebBundle {
     private final Project project
     private final String name
     private Map<String, String> configProperties = new HashMap<>()
+    private boolean gzipped;
 
     WebBundle(Project project, String name) {
         this.project = project
@@ -71,6 +67,21 @@ class WebBundle {
     @Input
     Map<String, String> getConfigProperties() {
         return Collections.unmodifiableMap(configProperties)
+    }
+
+    /**
+     * If set to true then both compressed and non-compressed versions of bundles are produced.
+     * Compressed one will have ".gz" suffix in its name.
+     *
+     * @return
+     */
+    @Input
+    boolean isGzipped() {
+        return gzipped;
+    }
+
+    void enableGzip() {
+        gzipped = true;
     }
 
     /**
