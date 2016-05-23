@@ -2,7 +2,7 @@
 
 Provides build-time solution for wro4j with Gradle.
 
-Latest release: 1.8.0.Beta3
+Latest release: 1.8.0.Beta4
 
 ## Getting Started
 
@@ -35,7 +35,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'ro.isdc.wro4j.gradle:wro4j-gradle-plugin:1.8.0.Beta3'
+        classpath 'ro.isdc.wro4j.gradle:wro4j-gradle-plugin:1.8.0.Beta4'
     }
 }
 apply plugin: 'java'
