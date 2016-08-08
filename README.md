@@ -100,13 +100,12 @@ static/
 
 ### How should I use Bootstrap's glyph fonts?
 
-1. Spring.Boot includes /webjars/* handler enabled by default, so use `webjarsRuntime` 
+**Way A**. Spring.Boot includes /webjars/* handler enabled by default, so use `webjarsRuntime` 
 in dependencies section instead of `webjars`. In this case `bootstrap.jar` is added to 
 your runtime libs and /webjars handler will be able to locate and return glyph fonts 
 from `bootstrap.jar`.
 
-
-2. If you do not use /webjars/* handler then you should copy fonts to you static 
+**Way B**. If you do not use /webjars/* handler then you should copy fonts to you static 
 resources and reference Bootstrap via `webjars`:
 ```groovy
 webResources {     
@@ -119,8 +118,7 @@ dependencies {
 }
 ```
 
- 
-3. It is also possible to use fonts from your static resources with enabled /webjars/* handler.
+**Way C**. It is also possible to use fonts from your static resources with enabled /webjars/* handler.
 ```groovy
 webResources {     
     from ("$buildMainDir/webjars/bootstrap/$versionBootstrap/fonts") {
